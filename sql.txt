@@ -1,0 +1,134 @@
+/*CREACION DE LAS TABLAS*/
+
+CREATE TABLE IF NOT EXISTS sprint8.prioridad
+(
+    id_prioridad serial NOT NULL,
+    nombre character(40) NOT NULL,
+    descripcion character(40) NOT NULL,
+    PRIMARY KEY (id_prioridad)
+);
+
+CREATE TABLE IF NOT EXISTS sprint8.usuario
+(
+    id_usuario serial NOT NULL,
+    email character(20) NOT NULL,
+    activo boolean NOT NULL,
+    PRIMARY KEY (id_usuario)
+);
+
+CREATE TABLE IF NOT EXISTS sprint8.tarea
+(
+    id_tarea serial NOT NULL,
+    titulo character(20) NOT NULL,
+    completado boolean NOT NULL,
+    id_prioridad integer NOT NULL,
+    id_usuario integer NOT NULL,
+    PRIMARY KEY (id_tarea)
+);
+
+
+/* AGREGO FOREING KEYS */
+
+ALTER TABLE IF EXISTS sprint8.tarea
+    ADD CONSTRAINT usuario_tarea FOREIGN KEY (id_usuario)
+    REFERENCES ejercicio_1_practico3_sql.usuario (id_usuario);
+
+
+ALTER TABLE IF EXISTS sprint8.tarea
+    ADD CONSTRAINT usuario_prioridad FOREIGN KEY (id_prioridad)
+    REFERENCES ejercicio_1_practico3_sql.prioridad (id_prioridad);
+
+
+/* INSERTAR DATOS EN TABLA PRIORIDAD*/
+
+INSERT INTO sprint8.prioridad(nombre, descripcion)
+VALUES ('Media', 'Tarea que puede esperar, debe realizarse');
+
+INSERT INTO sprint8.prioridad(nombre, descripcion)
+VALUES ('Alta', 'Tarea que se realiza con urgencia');
+
+INSERT INTO sprint8.prioridad(nombre, descripcion)
+VALUES ('Baja', 'Tarea que puede esperar');
+
+
+/* INSERTAR USUARIOS EN TABLA USUARIOS*/
+
+INSERT INTO sprint8.usuario(email, activo)
+VALUES
+  ('usuario1@gmail.com', true),
+  ('usuario2@gmail.com', false),
+  ('usuario3@gmail.com', true),
+  ('usuario4@gmail.com', false),
+  ('usuario5@gmail.com', true),
+  ('usuario6@gmail.com', false),
+  ('usuario7@gmail.com', true),
+  ('usuario8@gmail.com', false),
+  ('usuario9@gmail.com', true),
+  ('usuario10@gmail.com', false);
+
+
+/*INSERTAR TAREAS*/  
+
+INSERT INTO sprint8.tarea (titulo, completado, id_prioridad, id_usuario)
+VALUES
+    ('Tarea 1', true, 1, 1),
+    ('Tarea 2', false, 2, 2),
+    ('Tarea 3', true, 3, 3),
+    ('Tarea 4', false, 1, 4),
+    ('Tarea 5', true, 3, 5),
+    ('Tarea 6', false, 1, 6),
+    ('Tarea 7', true, 1, 7),
+    ('Tarea 8', true, 3, 8),
+    ('Tarea 9', true, 2, 9),
+    ('Tarea 10', false, 1, 10),
+
+
+/*OBTENER TODAS LAS TAREAS*/
+
+SELECT id_tarea, titulo, completado, id_prioridad, id_usuario
+	FROM sprint8.tarea;
+
+
+/*OBTENER TODAS LAS TAREAS POR USUARIO*/
+
+SELECT sprint8.usuario.*,titulo
+FROM sprint8.tarea 
+JOIN sprint8.usuario 
+ON usuario.id_usuario = tarea.id_usuario;
+
+
+/*OBTENER TODAS LAS TAREAS QUE SEAN DE USUARIO Y ESTEN PENDIENTE*/
+
+SELECT sprint8.usuario.*,titulo
+FROM sprint8.tarea 
+JOIN sprint8.usuario 
+ON usuario.id_usuario = tarea.id_usuario
+WHERE completado = 'false'
+
+
+/*BORRAR UNA TAREA*/
+
+DELETE FROM sprint8.tarea
+WHERE titulo = 'Tarea 4';
+
+/* Insertar un email repetido, ¿qué pasa?, ¿por qué?*/
+
+INSERT INTO sprint8.usuario(email, activo) VALUES ('usuario10@gmail.com', false) /* el email no se inserta porque se le establecio valor unique en la columna email y los datos no se pueden repetir*/
+
+
+/*Eliminar una prioridad que está siendo referenciada en una tarea, ¿es posible?, ¿por qué?, ¿qué significa la eliminación en cascada?*/
+
+/*no es posible, ya que esta haciendo referencia a otra tabla y sino se romperia las relaciones. La eliminacion en 
+  cascada hace que que al eliminar un dato de una tabla automaticamente se borre otro dato que extista en otra tabla, que tenga relacion con el primer dato,
+  por eso se colocan las claves externas
+*/
+
+DELETE FROM sprint8.prioridad
+WHERE id_prioridad = 1;
+
+
+/*Actualizar la tarea con el id más reciente de un usuario*/
+
+UPDATE sprint8.tarea
+SET titulo = 'Tarea 11'
+WHERE id_usuario = 6
